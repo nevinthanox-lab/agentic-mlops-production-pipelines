@@ -1,0 +1,107 @@
+{
+  "name": "ChurnGuard-Retention-Pipeline-Resume",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "churnguard-resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        48
+      ],
+      "id": "f1b644a4-a588-4535-8c6a-87b5ea473e1d",
+      "name": "Webhook",
+      "webhookId": "b3233799-a330-4cf4-9f21-3ac567ec5053"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/api/v1/resume",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"thread_id\": \"{{ $json.thread_id }}\",\n  \"approved\": {{ $json.approved }},\n  \"human_feedback\": \"{{ $json.human_feedback }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -32,
+        48
+      ],
+      "id": "5cb34312-e7c7-4914-9011-0f11d1d012e8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#churnguard",
+          "mode": "name"
+        },
+        "messageType": "block",
+        "blocksUi": "=[\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"✅ *Decision Processed Successfully!*\"\n    }\n  },\n  {\n    \"type\": \"divider\"\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🔑 Thread ID:*\\n`{{ $json.thread_id }}`\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🎯 Final Action:*\\n`{{ $json.final_decision.toUpperCase() }}`\"\n      }\n    ]\n  },\n  {\n    \"type\": \"context\",\n    \"elements\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"📂 *Status:* Logged & Audited in Supabase database.\"\n      }\n    ]\n  }\n]",
+        "text": "=✅ ChurnGuard Decision Processed: Thread {{ $json.thread_id }} is {{ $json.final_decision.toUpperCase() }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        128,
+        48
+      ],
+      "id": "10ab5a3a-d5e0-429a-b688-b7633ee9b60b",
+      "name": "Send a message",
+      "webhookId": "1c86f824-998b-45c1-b438-da6ed12c8614",
+      "credentials": {
+        "slackApi": {
+          "id": "wlLMJOEqCwnpRarj",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6979821e-a087-4f40-aaf1-fe59f5154889",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "279aba930ff15c346f6b5d354786dbbdfc3ccef014adc8ccec5285116eb01334"
+  },
+  "nodeGroups": [],
+  "id": "xzz3s3cCHkn4st2b",
+  "tags": []
+}

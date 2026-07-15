@@ -1,0 +1,11 @@
+{
+    "default_threshold": 0.5,
+    "default_precision": 0.29605263157894735,
+    "default_recall": 0.8108108108108109,
+    "default_f1_score": 0.43373493975903615,
+    "roc_auc_score": 0.9117648966461062,
+    "business_tuned_threshold": 0.41000000000000003,
+    "tuned_precision": 0.27714285714285714,
+    "tuned_recall": 0.8738738738738738,
+    "tuned_f1_score": 0.420824295010846
+}
