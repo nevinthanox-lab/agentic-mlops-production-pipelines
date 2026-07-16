@@ -1,0 +1,230 @@
+{
+  "name": "PromptShield - Ingress to Escalation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "promptshield-ingress",
+        "options": {}
+      },
+      "id": "ecd9dfa1-1717-493f-bf5d-2044c615e567",
+      "name": "Webhook - Prompt Ingress",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        144,
+        336
+      ],
+      "webhookId": "promptshield-ingress"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/classify",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": $json.body.text } }}",
+        "options": {}
+      },
+      "id": "0eafcd05-6474-477b-be17-5da544fcd982",
+      "name": "HTTP Request - Classify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.quarantine_triggered }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7040e303-7365-4a2e-8ffe-8064f29e0047",
+      "name": "IF - Quarantine Triggered",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        592,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 130
+      },
+      "id": "71e72a17-4e65-45df-8abb-8c5afa124bef",
+      "name": "Wait - Pipeline Completion",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        256
+      ],
+      "webhookId": "5acf7a3c-44b8-4a3d-ade0-a28b45e1281a"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.escalation && $json.escalation.notify_slack }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c4bbbbe2-2a7e-406a-be82-c4aedd8cc9de",
+      "name": "IF - Escalation Fired",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/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",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": \"🚨 PromptShield Incident: \" + $json.escalation.incident_id + \"\\nPrompt ID: \" + $json.prompt_id + \"\\nSeverity: \" + $json.escalation.severity + \"\\nAttack Category: \" + $json.escalation.attack_category + \"\\nTriage: \" + $json.escalation.triage_disposition + \" | Judge: \" + $json.escalation.judge_disposition + \"\\nReason: \" + $json.escalation.escalation_reason + \"\\nRecommended Action: \" + $json.escalation.recommended_action } }}",
+        "options": {}
+      },
+      "id": "d80f61a4-77e9-495f-b70d-747a85d4b212",
+      "name": "HTTP Request - Slack Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1472,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=http://host.docker.internal:8000/trace/{{ $('HTTP Request - Classify').item.json.prompt_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1008,
+        256
+      ],
+      "id": "d61d88cc-5cf6-4651-b4d2-cba62ac63b62",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Prompt Ingress": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Classify": {
+      "main": [
+        [
+          {
+            "node": "IF - Quarantine Triggered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Quarantine Triggered": {
+      "main": [
+        [
+          {
+            "node": "Wait - Pipeline Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Pipeline Completion": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Escalation Fired": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Slack Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "IF - Escalation Fired",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c6c985eb-7ac5-422d-9c1b-e3216ebabfbb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7033e0b9d54e6fa331891557cf91688b166c2976a0fec9b8e75669842a784fe"
+  },
+  "id": "8KhEPapP6iIrfUCs",
+  "tags": []
+}
