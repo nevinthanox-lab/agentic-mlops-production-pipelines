@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-07-17T13:05:38.572504",
+  "dataset": {
+    "n_samples": 12096,
+    "n_services": 6,
+    "anomaly_rate": 0.0351
+  },
+  "models": {
+    "IsolationForest": {
+      "precision": 0.0845,
+      "recall": 0.2165,
+      "f1": 0.1215,
+      "roc_auc": 0.6472
+    },
+    "OneClassSVM": {
+      "precision": 0.1529,
+      "recall": 0.1741,
+      "f1": 0.1628,
+      "roc_auc": 0.6563
+    },
+    "Autoencoder": {
+      "precision": 0.2807,
+      "recall": 0.28,
+      "f1": 0.2803,
+      "roc_auc": 0.7377
+    },
+    "Ensemble_IF_AE_Agreement": {
+      "precision": 0.1136,
+      "recall": 0.2588,
+      "f1": 0.1579,
+      "severity_distribution": {
+        "low": 11128,
+        "medium": 876,
+        "high": 92
+      }
+    }
+  },
+  "autoencoder_rmse": {
+    "overall_mean": 0.6057,
+    "on_ground_truth_anomalies": 0.7697,
+    "on_normal_windows": 0.5997
+  },
+  "best_model": "Autoencoder"
+}

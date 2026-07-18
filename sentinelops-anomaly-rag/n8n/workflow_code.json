@@ -1,0 +1,180 @@
+{
+  "name": "SentinelOps - Anomaly Detection & Remediation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sentinelops-alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        -48
+      ],
+      "id": "4a2090e1-f435-4b87-b610-6ff5bce54e08",
+      "name": "Webhook",
+      "webhookId": "025d4ecc-ac4c-4899-bb6b-db6130bb3f19"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/detect",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -352,
+        -48
+      ],
+      "id": "8c3b9b2d-849b-4586-b480-4216ea075890",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "482d277e-6294-4930-ab56-03c2cad69885",
+              "leftValue": "={{ $json.anomalies_found }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -144,
+        -48
+      ],
+      "id": "e4a86044-db5d-475b-8fbe-3d08b830fcca",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#sentinelops-alerts",
+          "mode": "name"
+        },
+        "text": "=🚨 *SentinelOps Anomaly Alert* Anomalies found: {{ $json.anomalies_found }} Service: {{ $json.results[0].service_name }} Timestamp: {{ $json.results[0].timestamp }} Severity: HIGH — escalating for human review.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        64,
+        -144
+      ],
+      "id": "bbe346bf-65b9-46b3-b1e6-2a5830320fa7",
+      "name": "Send a message",
+      "webhookId": "c93ffa4e-b8e8-463a-b74c-28a7ff5d8495",
+      "credentials": {
+        "slackApi": {
+          "id": "W98nS89B1Ky91X4Q",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        464,
+        -48
+      ],
+      "id": "ae008773-86c8-486c-bfb1-a36a8cf98836",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "764b581e-b4ef-42b8-aa34-4352a9ecd8e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ba9a7e9f7231dd6bd2976d0d8cff1dfc0b6774e214d2749d29e74b74923731a"
+  },
+  "nodeGroups": [],
+  "id": "NJMi30wesb71VADu",
+  "tags": []
+}

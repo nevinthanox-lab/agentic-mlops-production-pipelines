@@ -1,0 +1,66 @@
+<svg viewBox="0 0 1180 380" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+  <defs>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#3ED9C4"/>
+    </marker>
+    <marker id="arrowTrue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#F0B93D"/>
+    </marker>
+    <marker id="arrowFalse" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7A8290"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="380" fill="#0A0D12"/>
+  <text x="30" y="34" fill="#E7EAEE" font-size="17" font-weight="700">n8n Workflow — SentinelOps Anomaly Detection &amp; Remediation</text>
+  <text x="30" y="54" fill="#7A8290" font-size="11">exact node graph built in Phase 8 · STEP 8.1–8.4</text>
+
+  <!-- Webhook -->
+  <rect x="30" y="150" width="150" height="70" rx="10" fill="#12161D" stroke="#3ED9C4" stroke-opacity="0.5"/>
+  <text x="105" y="180" fill="#3ED9C4" font-size="12" font-weight="600" text-anchor="middle">Webhook</text>
+  <text x="105" y="198" fill="#7A8290" font-size="9" text-anchor="middle">POST /sentinelops-alert</text>
+
+  <path d="M180,185 H250" stroke="#3ED9C4" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- HTTP Request -->
+  <rect x="250" y="150" width="170" height="70" rx="10" fill="#12161D" stroke="#1F2530"/>
+  <text x="335" y="178" fill="#E7EAEE" font-size="12" font-weight="600" text-anchor="middle">HTTP Request</text>
+  <text x="335" y="196" fill="#7A8290" font-size="9" text-anchor="middle">POST host.docker.internal</text>
+  <text x="335" y="208" fill="#7A8290" font-size="9" text-anchor="middle">:8000/detect</text>
+
+  <path d="M420,185 H490" stroke="#3ED9C4" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- IF -->
+  <polygon points="490,185 555,150 620,185 555,220" fill="#12161D" stroke="#1F2530"/>
+  <text x="555" y="181" fill="#E7EAEE" font-size="12" font-weight="600" text-anchor="middle">IF</text>
+  <text x="555" y="197" fill="#7A8290" font-size="8" text-anchor="middle">anomalies_found &gt; 0</text>
+
+  <!-- true branch up to Slack -->
+  <path d="M555,150 V90 H700" stroke="#F0B93D" stroke-width="1.5" marker-end="url(#arrowTrue)"/>
+  <text x="565" y="105" fill="#F0B93D" font-size="10">true</text>
+
+  <rect x="700" y="55" width="170" height="70" rx="10" fill="#12161D" stroke="#F0B93D" stroke-opacity="0.5"/>
+  <text x="785" y="83" fill="#F0B93D" font-size="12" font-weight="600" text-anchor="middle">Slack — Send Message</text>
+  <text x="785" y="101" fill="#7A8290" font-size="9" text-anchor="middle">#sentinelops-alerts</text>
+  <text x="785" y="113" fill="#7A8290" font-size="9" text-anchor="middle">🚨 anomaly alert text</text>
+
+  <!-- false branch down -->
+  <path d="M555,220 V280 H700" stroke="#7A8290" stroke-width="1.5" marker-end="url(#arrowFalse)"/>
+  <text x="565" y="270" fill="#7A8290" font-size="10">false</text>
+
+  <!-- merge into Respond to Webhook -->
+  <path d="M870,90 C950,90 950,185 990,185" stroke="#F0B93D" stroke-width="1.5" fill="none" marker-end="url(#arrow2)"/>
+  <path d="M700,280 C950,280 950,185 990,185" stroke="#7A8290" stroke-width="1.5" fill="none" marker-end="url(#arrow2)"/>
+
+  <rect x="990" y="150" width="160" height="70" rx="10" fill="#12161D" stroke="#3ED9C4" stroke-opacity="0.5"/>
+  <text x="1070" y="178" fill="#3ED9C4" font-size="12" font-weight="600" text-anchor="middle">Respond to Webhook</text>
+  <text x="1070" y="196" fill="#7A8290" font-size="9" text-anchor="middle">returns detect JSON to caller</text>
+
+  <!-- legend -->
+  <g transform="translate(30,320)">
+    <rect width="1120" height="45" rx="8" fill="#12161D" stroke="#1F2530"/>
+    <circle cx="20" cy="22" r="4" fill="#F0B93D"/>
+    <text x="32" y="27" fill="#7A8290" font-size="10">true → anomaly found → Slack escalation</text>
+    <circle cx="330" cy="22" r="4" fill="#7A8290"/>
+    <text x="342" y="27" fill="#7A8290" font-size="10">false → no anomaly → respond directly</text>
+  </g>
+</svg>

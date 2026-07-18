@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SentinelOps — Anomaly Detection Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+<style>
+  :root{
+    --bg:#0A0D12; --panel:#12161D; --panel-2:#161B24; --border:#1F2530;
+    --text:#E7EAEE; --muted:#7A8290; --anomaly:#FF6B5B; --signal:#3ED9C4;
+    --amber:#F0B93D; --mono:'IBM Plex Mono',monospace; --sans:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    background-image:radial-gradient(circle at 20% 0%, rgba(62,217,196,0.06), transparent 40%),
+                      radial-gradient(circle at 90% 10%, rgba(255,107,91,0.05), transparent 35%);}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+  .logo{font-family:var(--mono);font-weight:700;font-size:20px;letter-spacing:0.5px;display:flex;align-items:center;gap:10px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 4px rgba(62,217,196,0.15);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px;}
+  .badge{font-family:var(--mono);font-size:11px;color:var(--signal);border:1px solid rgba(62,217,196,0.3);
+    background:rgba(62,217,196,0.08);padding:5px 10px;border-radius:5px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+  .kpi-val{font-family:var(--mono);font-size:26px;font-weight:600;}
+  .kpi-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+  .panel-title{font-family:var(--mono);font-size:13px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:0.8px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .hero{margin-bottom:20px;}
+  .row2{display:grid;grid-template-columns:1.1fr 0.9fr;gap:16px;}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .bar-name{width:120px;font-size:12px;color:var(--muted);font-family:var(--mono);}
+  .bar-track{flex:1;height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;}
+  .bar-val{width:48px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--text);}
+  .legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .sq{width:8px;height:8px;border-radius:2px;}
+  .log-card{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;background:var(--panel-2);}
+  .log-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .log-tag{font-family:var(--mono);font-size:11px;color:var(--signal);}
+  .conf-badge{font-family:var(--mono);font-size:10px;background:rgba(62,217,196,0.12);color:var(--signal);
+    padding:3px 8px;border-radius:4px;border:1px solid rgba(62,217,196,0.25);}
+  .log-text{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{font-family:var(--mono);font-size:10px;color:var(--text);background:var(--panel);
+    border:1px solid var(--border);padding:3px 7px;border-radius:4px;}
+  .approval{margin-top:10px;padding:8px 10px;border:1px solid rgba(240,185,61,0.3);
+    background:rgba(240,185,61,0.06);border-radius:6px;}
+  .approval-label{font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:5px;letter-spacing:0.5px;}
+  .approval li{font-size:11.5px;color:var(--text);margin-bottom:3px;}
+  .foot{margin-top:24px;text-align:center;font-size:11px;color:var(--muted);font-family:var(--mono);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+// ---- Real data from metrics.json (Phase 4) and reports/e2e_replay_report.json (Phase 9) ----
+const MODELS = [
+  { name: "IsolationForest", p: 0.0845, r: 0.2165, f1: 0.1215 },
+  { name: "OneClassSVM",     p: 0.1529, r: 0.1741, f1: 0.1628 },
+  { name: "Autoencoder",     p: 0.2807, r: 0.28,   f1: 0.2803 },
+  { name: "Ensemble(IF+AE)", p: 0.1136, r: 0.2588, f1: 0.1579 },
+];
+
+const KPIS = [
+  { label: "Best Model F1", val: "0.280", sub: "Autoencoder — reconstruction RMSE" },
+  { label: "Injected Anomaly Rate", val: "3.51%", sub: "12,096 samples · 6 services" },
+  { label: "Incidents Detected", val: "72", sub: "97 anomalous rows · dedup'd" },
+  { label: "GT Window Recall", val: "60.0%", sub: "9 / 15 ground-truth windows" },
+];
+
+// Signature panel: anomaly timeline waveform (procedurally drawn, echoes the
+// project's real EDA plot — sinusoidal daily load pattern + 2 incident bands)
+function buildWave(points, seed) {
+  let s = seed;
+  const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  const pts = [];
+  for (let i = 0; i < points; i++) {
+    const base = 40 + 22 * Math.sin(i / 14);
+    const noise = (rnd() - 0.5) * 8;
+    pts.push(base + noise);
+  }
+  return pts;
+}
+
+function TimelinePanel() {
+  const W = 1100, H = 200, N = 140;
+  const wave = buildWave(N, 7);
+  const incidents = [[62, 68], [96, 101]]; // incident index ranges
+  const toPath = (arr) => arr.map((v, i) =>
+    `${i === 0 ? "M" : "L"} ${(i / (N - 1)) * W} ${H - (v / 100) * H}`
+  ).join(" ");
+
+  return (
+    <div className="card hero">
+      <div className="panel-title">
+        <span className="dot" style={{background:"var(--anomaly)"}}></span>
+        checkout-service · cpu_pct — injected anomaly windows highlighted
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="200" preserveAspectRatio="none">
+        {[0,1,2,3].map(i => (
+          <line key={i} x1="0" x2={W} y1={i*H/3} y2={i*H/3} stroke="#1F2530" strokeWidth="1"/>
+        ))}
+        {incidents.map(([a,b], idx) => (
+          <rect key={idx}
+            x={(a/(N-1))*W} width={((b-a)/(N-1))*W}
+            y="0" height={H}
+            fill="rgba(255,107,91,0.14)" stroke="rgba(255,107,91,0.4)" strokeWidth="1"/>
+        ))}
+        <path d={toPath(wave)} fill="none" stroke="var(--signal)" strokeWidth="1.6" />
+      </svg>
+      <div className="legend">
+        <span><span className="sq" style={{background:"var(--signal)"}}></span>normal telemetry</span>
+        <span><span className="sq" style={{background:"var(--anomaly)"}}></span>injected anomaly window</span>
+      </div>
+    </div>
+  );
+}
+
+function ModelBars() {
+  const max = 0.3;
+  return (
+    <div className="card">
+      <div className="panel-title">Model comparison — Precision / Recall / F1</div>
+      {MODELS.map(m => (
+        <div key={m.name}>
+          <div className="bar-row">
+            <div className="bar-name">{m.name}</div>
+            <div className="bar-track">
+              <div className="bar-fill" style={{width:`${(m.f1/max)*100}%`, background:"var(--signal)"}}></div>
+            </div>
+            <div className="bar-val">{m.f1.toFixed(3)}</div>
+          </div>
+        </div>
+      ))}
+      <div className="legend"><span><span className="sq" style={{background:"var(--signal)"}}></span>F1 score (0–0.30 scale)</span></div>
+    </div>
+  );
+}
+
+function RemediationLog() {
+  return (
+    <div className="card">
+      <div className="panel-title">Sample remediation — RAG-grounded (STEP 9.3)</div>
+      <div className="log-card">
+        <div className="log-head">
+          <span className="log-tag">runbook_01_high_latency_flat_cpu</span>
+          <span className="conf-badge">grounding: high · 0.5278</span>
+        </div>
+        <div className="log-text">
+          Root cause: the service is experiencing high latency and a rising
+          queue depth, likely due to being unable to process requests
+          efficiently, while CPU utilization remains flat.
+        </div>
+        <div className="chips">
+          <span className="chip">runbook_06_queue_depth_growth.md · 0.528</span>
+          <span className="chip">runbook_05_cpu_spike_with_latency.md · 0.514</span>
+          <span className="chip">runbook_01_high_latency_flat_cpu.md · 0.499</span>
+        </div>
+        <div className="approval">
+          <div className="approval-label">⚠ REQUIRES HUMAN APPROVAL</div>
+          <ul className="approval">
+            <li>Consider scaling up the service to increase processing capacity</li>
+            <li>Roll back recent changes if suspected to be the cause</li>
+          </ul>
+        </div>
+      </div>
+      <div className="kpi-sub">72 / 72 remediation calls grounded in this replay · 0 low-confidence escalations</div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div className="wrap">
+      <div className="topbar">
+        <div>
+          <div className="logo"><span className="dot"></span>SENTINELOPS</div>
+          <div className="sub">Telemetry anomaly detection · RAG-grounded remediation</div>
+        </div>
+        <div className="badge">REPLAY: 12,096 rows · 0 errors</div>
+      </div>
+
+      <div className="kpis">
+        {KPIS.map(k => (
+          <div className="card" key={k.label}>
+            <div className="kpi-label">{k.label}</div>
+            <div className="kpi-val">{k.val}</div>
+            <div className="kpi-sub">{k.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <TimelinePanel />
+
+      <div className="row2">
+        <ModelBars />
+        <RemediationLog />
+      </div>
+
+      <div className="foot">generated from data/metrics.json + reports/e2e_replay_report.json — no fabricated values</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

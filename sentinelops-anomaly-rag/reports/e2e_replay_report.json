@@ -1,0 +1,30 @@
+{
+  "run_timestamp": "2026-07-17T14:45:09.427644+00:00",
+  "rows_replayed": 12096,
+  "batch_size": 50,
+  "total_detections": 97,
+  "api_errors": [],
+  "incident_report": {
+    "total_anomalous_rows": 97,
+    "incidents_opened": 72,
+    "incident_continuation_rows_skipped": 25,
+    "incident_gap_seconds": 600
+  },
+  "timing_report": {
+    "checked": true,
+    "total_detections": 97,
+    "total_gt_windows": 15,
+    "detections_matched_within_tolerance": 45,
+    "gt_windows_recalled": 9,
+    "gt_window_recall_pct": 60.0,
+    "tolerance_seconds": 300
+  },
+  "grounding_report": {
+    "total_remediation_calls": 72,
+    "grounded_with_runbook": 72,
+    "escalated_low_confidence": 0,
+    "confidence_label_counts": {
+      "high": 72
+    }
+  }
+}

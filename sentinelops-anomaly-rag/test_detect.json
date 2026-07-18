@@ -1,0 +1,17 @@
+{
+  "records": [
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:00:00","cpu_pct":40,"memory_pct":50,"latency_p50_ms":80,"latency_p95_ms":150,"latency_p99_ms":200,"error_rate_pct":0.5,"queue_depth":10,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:05:00","cpu_pct":41,"memory_pct":51,"latency_p50_ms":82,"latency_p95_ms":152,"latency_p99_ms":205,"error_rate_pct":0.4,"queue_depth":11,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:10:00","cpu_pct":39,"memory_pct":49,"latency_p50_ms":79,"latency_p95_ms":148,"latency_p99_ms":198,"error_rate_pct":0.5,"queue_depth":9,"thread_count":51},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:15:00","cpu_pct":42,"memory_pct":52,"latency_p50_ms":81,"latency_p95_ms":151,"latency_p99_ms":202,"error_rate_pct":0.6,"queue_depth":10,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:20:00","cpu_pct":40,"memory_pct":50,"latency_p50_ms":80,"latency_p95_ms":149,"latency_p99_ms":199,"error_rate_pct":0.5,"queue_depth":11,"thread_count":49},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:25:00","cpu_pct":41,"memory_pct":51,"latency_p50_ms":83,"latency_p95_ms":153,"latency_p99_ms":203,"error_rate_pct":0.4,"queue_depth":10,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:30:00","cpu_pct":39,"memory_pct":49,"latency_p50_ms":78,"latency_p95_ms":147,"latency_p99_ms":197,"error_rate_pct":0.5,"queue_depth":9,"thread_count":51},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:35:00","cpu_pct":42,"memory_pct":52,"latency_p50_ms":80,"latency_p95_ms":150,"latency_p99_ms":200,"error_rate_pct":0.5,"queue_depth":10,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:40:00","cpu_pct":40,"memory_pct":50,"latency_p50_ms":81,"latency_p95_ms":151,"latency_p99_ms":201,"error_rate_pct":0.4,"queue_depth":11,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:45:00","cpu_pct":41,"memory_pct":51,"latency_p50_ms":79,"latency_p95_ms":149,"latency_p99_ms":199,"error_rate_pct":0.5,"queue_depth":10,"thread_count":49},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:50:00","cpu_pct":39,"memory_pct":50,"latency_p50_ms":80,"latency_p95_ms":150,"latency_p99_ms":200,"error_rate_pct":0.5,"queue_depth":10,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T09:55:00","cpu_pct":40,"memory_pct":51,"latency_p50_ms":81,"latency_p95_ms":151,"latency_p99_ms":201,"error_rate_pct":0.5,"queue_depth":10,"thread_count":50},
+    {"service_name":"checkout-service","timestamp":"2026-07-17T10:00:00","cpu_pct":41,"memory_pct":50,"latency_p50_ms":350,"latency_p95_ms":620,"latency_p99_ms":800,"error_rate_pct":8.5,"queue_depth":95,"thread_count":50}
+  ]
+}
